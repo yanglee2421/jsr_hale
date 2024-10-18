@@ -1,0 +1,16 @@
+{
+  "version": "4",
+  "specifiers": {
+    "jsr:@yotulee/run@^0.0.3": "0.0.3"
+  },
+  "jsr": {
+    "@yotulee/run@0.0.3": {
+      "integrity": "60068178a7fd8d036e6b3d32b99bce3ceef084350a884f581afd98665fc19f04"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@yotulee/run@^0.0.3"
+    ]
+  }
+}
