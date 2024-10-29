@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-read main.ts"
+    "dev": "deno run --watch --allow-read --allow-net main.ts"
   },
   "imports": {
     "@yotulee/run": "jsr:@yotulee/run@^0.0.5"
