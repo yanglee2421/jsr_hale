@@ -7,6 +7,7 @@ Deno.serve({ port: 8080 }, (req) => {
     return new Response(null, { status: 501 });
   }
   const { socket, response } = Deno.upgradeWebSocket(req);
+
   socket.addEventListener("open", () => {
     socket.send(data);
     clients.add(socket);
@@ -18,8 +19,9 @@ Deno.serve({ port: 8080 }, (req) => {
   });
   socket.addEventListener("message", (event) => {
     data = event.data;
-    clients.forEach((socket) => socket.send(data));
+    clients.forEach((client) => client.send(data));
   });
   socket.addEventListener("error", () => {});
+
   return response;
 });
