@@ -1,3 +1,4 @@
+import "./asyncContext.ts";
 let data = "hale";
 
 const clients = new Set<WebSocket>();
@@ -26,7 +27,7 @@ Deno.serve({ port: 8080 }, (req) => {
   return response;
 });
 
-const sseBuf = `id: 12345
+export const sseBuf = `id: 12345
 event: update
 retry: 5000
 data: {
@@ -49,7 +50,7 @@ const eventReg = /^event:(?<event>.+)$/m;
 const retryReg = /^retry:(?<retry>.+)$/m;
 const dataReg = /^data:(?<data>.+)$/mg;
 
-const decodeSSE = (buf: string) => {
+export const decodeSSE = (buf: string) => {
   return buf.split("\n\n").map((i) => {
     const id = idReg.exec(i)?.groups?.id.trim();
     const event = eventReg.exec(i)?.groups?.event.trim();
@@ -60,7 +61,3 @@ const decodeSSE = (buf: string) => {
     return { id, event, retry, data };
   });
 };
-
-console.log(
-  decodeSSE(sseBuf).map((i) => ({ ...i, data: JSON.parse(i.data) })),
-);
