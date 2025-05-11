@@ -1,16 +1,33 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
-    "jsr:@yotulee/run@^0.0.5": "0.0.5"
+    "jsr:@yotulee/run@^0.0.5": "0.0.5",
+    "npm:@types/node@*": "22.12.0",
+    "npm:zod@^3.24.4": "3.24.4"
   },
   "jsr": {
     "@yotulee/run@0.0.5": {
       "integrity": "7dbe00e414fd61e24e77e1104964513a2523da5a2f2d60032c2f16d0509cd465"
     }
   },
+  "npm": {
+    "@types/node@22.12.0": {
+      "integrity": "sha512-Fll2FZ1riMjNmlmJOdAyY5pUbkftXslB5DgEzlIuNaiWhXd00FhWxVC/r4yV/4wBb9JfImTu+jiSvXTkJ7F/gA==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "undici-types@6.20.0": {
+      "integrity": "sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg=="
+    },
+    "zod@3.24.4": {
+      "integrity": "sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg=="
+    }
+  },
   "workspace": {
     "dependencies": [
-      "jsr:@yotulee/run@^0.0.5"
+      "jsr:@yotulee/run@^0.0.5",
+      "npm:zod@^3.24.4"
     ]
   }
 }
