@@ -1,11 +1,10 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-read --allow-net main.ts",
-    "run": "deno run --watch getValue.ts",
-    "start": "deno run --watch -R -W dev.ts",
-    "ffi": "deno run --watch --allow-ffi --allow-env ffi.ts"
+    "dev": "deno run --watch --allow-read --allow-env --allow-ffi ./src/main.ts",
+    "build": "deno compile --allow-read --allow-net --allow-env --allow-ffi ./src/main.ts"
   },
   "imports": {
+    "@webview/webview": "jsr:@webview/webview@^0.9.0",
     "@yotulee/run": "jsr:@yotulee/run@^0.0.5",
     "zod": "npm:zod@^3.24.4"
   }
