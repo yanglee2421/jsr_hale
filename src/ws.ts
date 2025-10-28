@@ -1,4 +1,3 @@
-import "./asyncContext.ts";
 let data = "hale";
 
 const clients = new Set<WebSocket>();
@@ -48,15 +47,17 @@ data: }
 const idReg = /^id:(?<id>.+)$/m;
 const eventReg = /^event:(?<event>.+)$/m;
 const retryReg = /^retry:(?<retry>.+)$/m;
-const dataReg = /^data:(?<data>.+)$/mg;
+const dataReg = /^data:(?<data>.+)$/gm;
 
 export const decodeSSE = (buf: string) => {
   return buf.split("\n\n").map((i) => {
     const id = idReg.exec(i)?.groups?.id.trim();
     const event = eventReg.exec(i)?.groups?.event.trim();
     const retry = retryReg.exec(i)?.groups?.retry.trim();
-    const data = Array.from(i.matchAll(dataReg), (i) => i.groups?.data || "")
-      .join("");
+    const data = Array.from(
+      i.matchAll(dataReg),
+      (i) => i.groups?.data || ""
+    ).join("");
 
     return { id, event, retry, data };
   });
