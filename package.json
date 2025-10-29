@@ -1,5 +1,6 @@
 {
-  "name": "jsr_hale",
+  "name": "bun_palyground",
+  "description": "The Palyground of Bun.js",
   "module": "index.ts",
   "type": "module",
   "private": true,
