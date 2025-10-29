@@ -1,13 +1,23 @@
 {
-  "name": "bun_palyground",
+  "name": "playground.bun",
   "description": "The Palyground of Bun.js",
-  "module": "index.ts",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "module": "index.ts",
+  "main": "",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "scripts": {
+    "dev": "bun index.ts"
   }
 }
