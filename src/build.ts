@@ -6,4 +6,5 @@ Bun.build({
     chunk: "[name]-[hash].[ext]",
     asset: "[name]-[hash].[ext]",
   },
+  minify: true,
 });
