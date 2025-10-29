@@ -4,3 +4,4 @@
 test.json
 **/*.dll
 node_modules/
+dist/
