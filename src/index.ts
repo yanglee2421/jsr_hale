@@ -74,4 +74,4 @@ const bootstrap = async () => {
   textDecoder.decode();
 };
 
-bootstrap();
+import("./serve");
