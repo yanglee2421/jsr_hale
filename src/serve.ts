@@ -112,15 +112,15 @@ const server = Bun.serve({
             msg: "数据读取成功",
             data: [
               {
-                CZZZDW: "048",
+                CZZZDW: "114",
                 CZZZRQ: "2009-10",
                 MCZZDW: "131",
                 MCZZRQ: "2018-07-09 00:00:00",
                 SCZZDW: "131",
                 SCZZRQ: "2018-07-09 00:00:00",
 
-                DH: "dh" + barCode,
-                ZH: barCode,
+                DH: Date.now() + "",
+                ZH: "73973",
                 ZX: "RE2B",
                 SRYY: "厂修",
                 SRDW: "588",
