@@ -4,14 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "types": {
-        "import": "./dist/index.d.mts",
-        "require": "./dist/index.d.cts"
-      },
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    }
+    "types": {
+      "import": "./dist/index.d.mts",
+      "require": "./dist/index.d.cts"
+    },
+    "import": "./dist/index.js",
+    "require": "./dist/index.js"
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
