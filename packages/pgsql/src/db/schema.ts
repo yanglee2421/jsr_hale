@@ -11,11 +11,11 @@ import {
 } from "drizzle-orm/pg-core";
 
 export type User = typeof userTable.$inferSelect;
-export type ChargingCabinet = typeof chargingCabinetTable.$inferSelect;
-export type ChargingSocket = typeof chargingSocketTable.$inferSelect;
+export type ChargingCabinet = typeof cabinetTable.$inferSelect;
+export type ChargingSocket = typeof socketTable.$inferSelect;
 export type Session = typeof sessionTable.$inferSelect;
 export type UserFeedback = typeof userFeedbackTable.$inferSelect;
-export type ChargingOrder = typeof chargingOrderTable.$inferSelect;
+export type ChargingOrder = typeof orderTable.$inferSelect;
 export type PaymentRecord = typeof paymentRecordTable.$inferSelect;
 
 export const socketTypeEnum = pgEnum("socket_type", [
@@ -84,7 +84,30 @@ export const userTable = pgTable("users", {
     .$onUpdate(() => new Date().toISOString()),
 });
 
-export const chargingCabinetTable = pgTable("charging_cabinets", {
+export const sessionTable = pgTable(
+  "sessions",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    expires_at: timestamp({ withTimezone: true, mode: "string" }).notNull(),
+    create_time: timestamp({ withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    update_time: timestamp({ withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date().toISOString()),
+
+    user_id: integer()
+      .notNull()
+      .references(() => userTable.id),
+  },
+  (table) => [
+    index("idx_sessions_user_id").on(table.user_id),
+    index("idx_sessions_expires_at").on(table.expires_at),
+  ],
+);
+
+export const cabinetTable = pgTable("charging_cabinets", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   cabinet_code: varchar({ length: 30 }).notNull().unique(),
   province: varchar({ length: 20 }),
@@ -106,12 +129,9 @@ export const chargingCabinetTable = pgTable("charging_cabinets", {
     .$onUpdate(() => new Date().toISOString()),
 });
 
-export const chargingSocketTable = pgTable("charging_sockets", {
+export const socketTable = pgTable("charging_sockets", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   socket_code: varchar({ length: 30 }).notNull().unique(),
-  cabinet_id: integer()
-    .notNull()
-    .references(() => chargingCabinetTable.id),
   socket_type: socketTypeEnum().notNull().default("slow"),
   rated_voltage: decimal({ precision: 5, scale: 1 }).notNull(),
   rated_current: decimal({ precision: 5, scale: 1 }).notNull(),
@@ -126,17 +146,29 @@ export const chargingSocketTable = pgTable("charging_sockets", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date().toISOString()),
+
+  cabinet_id: integer()
+    .notNull()
+    .references(() => cabinetTable.id),
 });
 
-export const chargingOrderTable = pgTable("charging_orders", {
+export const socketRunningRecordTable = pgTable("socket_running_records", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  user_id: integer()
-    .notNull()
-    .references(() => userTable.id),
+  record_time: timestamp({ withTimezone: true, mode: "string" }),
+  real_voltage: decimal({ precision: 5, scale: 1 }),
+  real_current: decimal({ precision: 5, scale: 1 }),
+  real_power: decimal({ precision: 5, scale: 1 }),
+  current_kwh: decimal({ precision: 10, scale: 2 }),
+  temperature: decimal({ precision: 4, scale: 1 }),
+
   socket_id: integer()
     .notNull()
-    .references(() => chargingSocketTable.id),
-  cabinet_id: integer(),
+    .references(() => socketTable.id),
+  order_id: integer().references(() => orderTable.id),
+});
+
+export const orderTable = pgTable("charging_orders", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   order_status: orderStatusEnum().notNull().default("pending"),
   start_time: timestamp({ withTimezone: true, mode: "string" }),
   end_time: timestamp({ withTimezone: true, mode: "string" }),
@@ -151,28 +183,16 @@ export const chargingOrderTable = pgTable("charging_orders", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date().toISOString()),
-});
 
-export const socketRunningRecordTable = pgTable("socket_running_records", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  socket_id: integer()
+  user_id: integer()
     .notNull()
-    .references(() => chargingSocketTable.id),
-  order_id: integer().references(() => chargingOrderTable.id),
-  real_voltage: decimal({ precision: 5, scale: 1 }),
-  real_current: decimal({ precision: 5, scale: 1 }),
-  real_power: decimal({ precision: 5, scale: 1 }),
-  current_kwh: decimal({ precision: 10, scale: 2 }),
-  record_time: timestamp({ withTimezone: true, mode: "string" }),
-  temperature: decimal({ precision: 4, scale: 1 }),
+    .references(() => userTable.id),
+  socket_id: integer().references(() => socketTable.id),
+  cabinet_id: integer().references(() => cabinetTable.id),
 });
 
 export const paymentRecordTable = pgTable("payment_records", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  order_id: integer()
-    .notNull()
-    .references(() => chargingOrderTable.id),
-  user_id: integer(),
   payment_amount: decimal({ precision: 10, scale: 2 }),
   payment_type: paymentTypeEnum().notNull().default("charge_balance"),
   payment_status: paymentStatusEnum().notNull().default("pending"),
@@ -180,54 +200,41 @@ export const paymentRecordTable = pgTable("payment_records", {
   create_time: timestamp({ withTimezone: true, mode: "string" })
     .notNull()
     .defaultNow(),
+
+  order_id: integer()
+    .notNull()
+    .references(() => orderTable.id),
+  user_id: integer().references(() => userTable.id),
 });
 
 export const deviceMaintenanceTable = pgTable("device_maintenance", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  socket_id: integer()
-    .notNull()
-    .references(() => chargingSocketTable.id),
-  cabinet_id: integer(),
   type: deviceMaintenanceTypeEnum().notNull().default("fault_report"),
   content: varchar({ length: 500 }),
-  handler_id: integer().references(() => userTable.id),
   status: deviceMaintenanceStatusEnum().notNull().default("pending"),
   handle_time: timestamp({ withTimezone: true, mode: "string" }),
   create_time: timestamp({ withTimezone: true, mode: "string" })
     .notNull()
     .defaultNow(),
+
+  handler_id: integer().references(() => userTable.id),
+  cabinet_id: integer().references(() => cabinetTable.id),
+  socket_id: integer()
+    .notNull()
+    .references(() => socketTable.id),
 });
 
 export const userFeedbackTable = pgTable("user_feedback", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  user_id: integer().references(() => userTable.id),
-  cabinet_id: integer(),
-  socket_id: integer(),
-  order_id: integer(),
   content: varchar({ length: 1000 }),
   status: userFeedbackEnum().notNull().default("pending"),
   reply_content: varchar({ length: 1000 }),
   create_time: timestamp({ withTimezone: true, mode: "string" })
     .notNull()
     .defaultNow(),
-});
 
-export const sessionTable = pgTable(
-  "sessions",
-  {
-    id: uuid().primaryKey().defaultRandom(),
-    user_id: integer().notNull(),
-    expires_at: timestamp({ withTimezone: true, mode: "string" }).notNull(),
-    create_time: timestamp({ withTimezone: true, mode: "string" })
-      .notNull()
-      .defaultNow(),
-    update_time: timestamp({ withTimezone: true, mode: "string" })
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date().toISOString()),
-  },
-  (table) => [
-    index("idx_sessions_user_id").on(table.user_id),
-    index("idx_sessions_expires_at").on(table.expires_at),
-  ],
-);
+  user_id: integer().references(() => userTable.id),
+  cabinet_id: integer(),
+  socket_id: integer(),
+  order_id: integer(),
+});
